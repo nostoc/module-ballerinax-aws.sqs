@@ -24,7 +24,24 @@ import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
 import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
-public class CreateQueueMapper {
+public final class CreateQueueMapper {
+
+    private static final Map<String, String> ATTRIBUTE_NAME_MAP = Map.ofEntries(
+            Map.entry("delaySeconds", "DelaySeconds"),
+            Map.entry("maximumMessageSize", "MaximumMessageSize"),
+            Map.entry("messageRetentionPeriod", "MessageRetentionPeriod"),
+            Map.entry("policy", "Policy"),
+            Map.entry("receiveMessageWaitTimeSeconds", "ReceiveMessageWaitTimeSeconds"),
+            Map.entry("visibilityTimeout", "VisibilityTimeout"),
+            Map.entry("redrivePolicy", "RedrivePolicy"),
+            Map.entry("redriveAllowPolicy", "RedriveAllowPolicy"),
+            Map.entry("kmsMasterKeyId", "KmsMasterKeyId"),
+            Map.entry("kmsDataKeyReusePeriodSeconds", "KmsDataKeyReusePeriodSeconds"),
+            Map.entry("sqsManagedSseEnabled", "SqsManagedSseEnabled"),
+            Map.entry("fifoQueue", "FifoQueue"),
+            Map.entry("contentBasedDeduplication", "ContentBasedDeduplication"),
+            Map.entry("deduplicationScope", "DeduplicationScope"),
+            Map.entry("fifoThroughputLimit", "FifoThroughputLimit"));
 
     public static final BString QUEUE_ATTRIBUTES = StringUtils.fromString("queueAttributes");
     public static final BString TAGS = StringUtils.fromString("tags");
@@ -32,35 +49,16 @@ public class CreateQueueMapper {
     private CreateQueueMapper() {
     }
 
-    @SuppressWarnings("unchecked")
     public static CreateQueueRequest getNativeCreateQueueRequest(BString queueName, BMap<BString, Object> bConfig) {
         CreateQueueRequest.Builder builder = CreateQueueRequest.builder().queueName(queueName.getValue());
-
-        final Map<String, String> ATTRIBUTE_NAME_MAP = Map.ofEntries(
-                        Map.entry("delaySeconds", "DelaySeconds"),
-                        Map.entry("maximumMessageSize", "MaximumMessageSize"),
-                        Map.entry("messageRetentionPeriod", "MessageRetentionPeriod"),
-                        Map.entry("policy", "Policy"),
-                        Map.entry("receiveMessageWaitTimeSeconds", "ReceiveMessageWaitTimeSeconds"),
-                        Map.entry("visibilityTimeout", "VisibilityTimeout"),
-                        Map.entry("redrivePolicy", "RedrivePolicy"),
-                        Map.entry("redriveAllowPolicy", "RedriveAllowPolicy"),
-                        Map.entry("kmsMasterKeyId", "KmsMasterKeyId"),
-                        Map.entry("kmsDataKeyReusePeriodSeconds", "KmsDataKeyReusePeriodSeconds"),
-                        Map.entry("sqsManagedSseEnabled", "SqsManagedSseEnabled"),
-                        Map.entry("fifoQueue", "FifoQueue"),
-                        Map.entry("contentBasedDeduplication", "ContentBasedDeduplication"),
-                        Map.entry("deduplicationScope", "DeduplicationScope"),
-                        Map.entry("fifoThroughputLimit", "FifoThroughputLimit"));
-
         if (bConfig != null) {
             if (bConfig.containsKey(QUEUE_ATTRIBUTES)) {
-                BMap<BString, Object> attrs = (BMap<BString, Object>) bConfig.get(QUEUE_ATTRIBUTES);
+                var attrs = bConfig.getMapValue(QUEUE_ATTRIBUTES);
                 if (attrs != null) {
                     Map<QueueAttributeName, String> attrMap = new HashMap<>();
-                    for (Object key : attrs.getKeys()) {
-                        BString attrkey = (BString) key;
-                        Object value = attrs.get(attrkey);
+                    for (var entrySet : attrs.entrySet()) {
+                        BString attrkey = (BString) entrySet.getKey();
+                        Object value = entrySet.getValue();
                         String awsAttrName = ATTRIBUTE_NAME_MAP.get(attrkey.getValue());
                         if (awsAttrName != null && value != null) {
                             attrMap.put(QueueAttributeName.fromValue(awsAttrName), value.toString());
@@ -69,22 +67,19 @@ public class CreateQueueMapper {
                     builder.attributes(attrMap);
                 }
             }
-
             if (bConfig.containsKey(TAGS)) {
-                BMap<BString, Object> tags = (BMap<BString, Object>) bConfig.get(TAGS);
+                var tags = bConfig.getMapValue(TAGS);
                 if (tags != null) {
                     Map<String, String> tagMap = new HashMap<>();
-                    for (Object key : tags.getKeys()) {
-                        BString tagKey = (BString) key;
-                        Object value = tags.get(tagKey);
+                    for (var entrySet : tags.entrySet()) {
+                        BString tagKey = (BString) entrySet.getKey();
+                        Object value = entrySet.getValue();
                         tagMap.put(tagKey.getValue(), value.toString());
                     }
                     builder.tags(tagMap);
                 }
             }
         }
-
         return builder.build();
-
     }
 }

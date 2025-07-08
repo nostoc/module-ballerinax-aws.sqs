@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 import software.amazon.awssdk.services.sqs.model.ListQueuesRequest;
 import software.amazon.awssdk.services.sqs.model.ListQueuesResponse;
 
-public class ListQueuesMapper {
+public final class ListQueuesMapper {
 
     private static final BString MAX_RESULTS = StringUtils.fromString("maxResults");
     private static final BString NEXT_TOKEN = StringUtils.fromString("nextToken");
@@ -40,11 +40,11 @@ public class ListQueuesMapper {
     }
 
     public static ListQueuesRequest getNativeListQueuesRequest(BMap<BString, Object> listQueuesConfig)
-                    throws Exception {
+            throws Exception {
         ListQueuesRequest.Builder builder = ListQueuesRequest.builder();
         if (listQueuesConfig != null) {
             if (listQueuesConfig.containsKey(MAX_RESULTS)) {
-                builder.maxResults(((Long) listQueuesConfig.get(MAX_RESULTS)).intValue());
+                builder.maxResults(listQueuesConfig.getIntValue(MAX_RESULTS).intValue());
             }
             if (listQueuesConfig.containsKey(NEXT_TOKEN)) {
                 builder.nextToken(listQueuesConfig.getStringValue(NEXT_TOKEN).getValue());
@@ -71,7 +71,5 @@ public class ListQueuesMapper {
             result.put(NEXT_TOKEN, StringUtils.fromString(response.nextToken()));
         }
         return result;
-
     }
-
 }

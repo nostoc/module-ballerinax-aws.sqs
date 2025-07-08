@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sqs.model.ListQueueTagsResponse;
 
 import java.util.Map;
 
-public class ListQueueTagsMapper {
+public final class ListQueueTagsMapper {
     private static final String LIST_QUEUE_TAGS_RESPONSE = "ListQueueTagsResponse";
     private static final BString TAGS = StringUtils.fromString("tags");
 
@@ -33,7 +33,7 @@ public class ListQueueTagsMapper {
 
     public static BMap<BString, Object> getNativeListQueueTagsResponse(ListQueueTagsResponse response) {
         BMap<BString, Object> result = ValueCreator.createRecordValue(ModuleUtils.getModule(),
-                        LIST_QUEUE_TAGS_RESPONSE);
+                LIST_QUEUE_TAGS_RESPONSE);
         Map<String, String> tags = response.tags();
         BMap<BString, Object> tagMap = ValueCreator.createMapValue();
         if (tags != null) {
